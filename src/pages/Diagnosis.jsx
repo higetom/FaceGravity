@@ -365,6 +365,30 @@ export default function Diagnosis() {
     }
   }, [step])
 
+  // Volume button / keyboard shutter trigger
+  // On iOS Safari, volume buttons fire keydown with key="VolumeUp"/"VolumeDown"
+  // Also support space bar and Enter on desktop
+  useEffect(() => {
+    if (step !== 0 && step !== 2) return
+    if (!cameraReady) return
+
+    function handleKeyCapture(e) {
+      const key = e.key || ''
+      if (
+        key === 'VolumeUp' || key === 'VolumeDown' ||
+        key === 'AudioVolumeUp' || key === 'AudioVolumeDown' ||
+        key === ' ' || key === 'Enter'
+      ) {
+        e.preventDefault()
+        if (step === 0) handleCaptureFront()
+        else if (step === 2) handleCaptureSide()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyCapture)
+    return () => document.removeEventListener('keydown', handleKeyCapture)
+  }, [step, cameraReady])
+
   // Capture photo
   function capturePhoto() {
     const video = videoRef.current
