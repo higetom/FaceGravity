@@ -471,7 +471,7 @@ export default function Diagnosis() {
 
   const analysisTerms = [
     'Face Mesh 468点 + BlazePose 33点 検出',
-    '頤頸角 (CMA) 算出',
+    'ネックライン角度 算出',
     'ジョーライン定義指数 (JDI) 算出',
     'Forward Head Posture 角度測定',
   ]

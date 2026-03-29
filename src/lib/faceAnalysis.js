@@ -516,7 +516,7 @@ export async function analyzePhotos(frontPhotoDataUrl, sidePhotoDataUrl, onProgr
 
   // --- CMA Estimation (browser-based fallback) ---
   if (!dlibResult) {
-    progress('頤頸角 (CMA) を算出中 (ブラウザ内推定)...')
+    progress('ネックライン角度を算出中...')
     const cmaResult = estimateCMA(sideFaceKP || frontFaceKP, sidePoseLM)
     if (cmaResult) {
       results.cmaAngle = cmaResult.cmaAngle

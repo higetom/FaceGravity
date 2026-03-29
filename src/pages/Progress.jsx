@@ -301,7 +301,7 @@ export default function Progress() {
           <div className="grid grid-cols-3 gap-3">
             {[
               {
-                label: '頤頸角',
+                label: 'ネックライン角度',
                 current: `${diagnosis.cmaAngle || 0}\u00B0`,
                 predicted: `${Math.max(105, (diagnosis.cmaAngle || 125) - 4)}\u00B0`,
                 color: '#22c55e',

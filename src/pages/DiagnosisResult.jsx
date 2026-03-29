@@ -9,11 +9,11 @@ import { useApp } from '../context/AppContext'
 // ============================================================
 const explanations = {
   cma: {
-    title: '頤頸角 (CMA) とは？',
+    title: 'ネックライン角度とは？',
     sections: [
       {
         heading: '何を測っているか',
-        body: '顎の先端（オトガイ）から首にかけてのラインが作る角度です。横顔の「フェイスライン〜首」のシャープさを数値化しています。',
+        body: '顎の下から首にかけてのラインが作る角度です。いわゆる「二重あご」や「首のたるみ」の程度を数値化しています。フェイスラインスコア（正面の輪郭）とは別に、横顔のスッキリ度を測ります。',
       },
       {
         heading: '理想の範囲',
@@ -231,7 +231,7 @@ function generateShareCard({ cmaAngle, cmaGrade, jdi, postureGrade, postureAngle
 
     // Score cards
     const cards = [
-      { label: '頤頸角 (CMA)', value: `${cmaGrade}`, sub: `${cmaAngle}°`, color: '#22c55e' },
+      { label: 'ネックライン角度', value: `${cmaGrade}`, sub: `${cmaAngle}°`, color: '#22c55e' },
       { label: 'フェイスライン (JDI)', value: `${jdi}`, sub: '/ 100', color: '#2dd4bf' },
       { label: '姿勢', value: postureGrade, sub: `${postureAngle}°`, color: '#60a5fa' },
     ]
@@ -415,7 +415,7 @@ export default function DiagnosisResult() {
         const file = new File([blob], 'facegravity-result.png', { type: 'image/png' })
         const shareData = {
           title: 'FaceGravity AI診断結果',
-          text: `FaceGravityで顔診断しました！頤頸角: ${cmaGrade} / フェイスライン: ${jdi}/100 / 姿勢: ${postureGrade}`,
+          text: `FaceGravityで顔診断しました！ネックライン: ${cmaGrade} / フェイスライン: ${jdi}/100 / 姿勢: ${postureGrade}`,
           files: [file],
         }
         if (navigator.canShare(shareData)) {
@@ -494,8 +494,8 @@ export default function DiagnosisResult() {
 
         <div className="text-center space-y-2">
           <p className="text-white font-semibold">
-            {cmaAngle >= 105 && cmaAngle <= 120 ? '頤頸角は理想範囲内' :
-             cmaAngle < 105 ? '頤頸角がやや鋭角' : '頤頸角にたるみの兆候'}
+            {cmaAngle >= 105 && cmaAngle <= 120 ? 'ネックライン角度は理想範囲内' :
+             cmaAngle < 105 ? 'ネックライン角度がやや鋭角' : 'ネックライン角度にたるみの兆候'}
           </p>
           <p className="text-white/60 text-sm leading-relaxed">
             理想範囲は105-120{'\u00B0'}です。あなたの測定値は{cmaAngle}{'\u00B0'}
@@ -538,7 +538,7 @@ export default function DiagnosisResult() {
           {/* CMA Score */}
           {visibleSections.cma && (
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="glass-card p-6">
-              <SectionHeader title="頤頸角スコア" onInfoTap={() => setActiveInfo('cma')} />
+              <SectionHeader title="ネックライン角度" onInfoTap={() => setActiveInfo('cma')} />
               <CircularGauge value={cmaAngle} />
             </motion.div>
           )}
@@ -578,36 +578,44 @@ export default function DiagnosisResult() {
           )}
 
           {/* Posture Grade */}
-          {visibleSections.posture && (
-            <motion.div variants={containerVariants} initial="hidden" animate="visible" className="glass-card p-6">
-              <SectionHeader title="姿勢グレード" onInfoTap={() => setActiveInfo('posture')} />
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                    <div className="w-20 h-20 rounded-2xl gradient-brand flex items-center justify-center shadow-lg shadow-green-400/30">
-                      <span className="text-4xl font-bold text-white">{postureGrade}</span>
+          {visibleSections.posture && (() => {
+            // Determine posture status label and color
+            const postureStatus =
+              postureAngle <= 10 ? { label: '良好', color: '#22c55e', bg: 'rgba(34,197,94,0.15)', desc: '理想的な姿勢です。この状態を維持していきましょう。' }
+              : postureAngle <= 20 ? { label: 'やや前傾', color: '#fbbf24', bg: 'rgba(251,191,36,0.15)', desc: '軽い前傾姿勢の傾向があります。意識的に姿勢を正すことで改善できます。' }
+              : postureAngle <= 35 ? { label: '前に出ている', color: '#fb923c', bg: 'rgba(251,146,60,0.15)', desc: 'スマホやデスクワークによる前傾姿勢が見られます。フェイスラインのたるみに直結するため、改善が効果的です。' }
+              : { label: '大きく前傾', color: '#ef4444', bg: 'rgba(239,68,68,0.15)', desc: '頭部が大きく前方に出ています。首・肩まわりの筋バランスを整えることで、顔まわりの印象が大きく変わります。' }
+
+            return (
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="glass-card p-6">
+                <SectionHeader title="姿勢の状態" onInfoTap={() => setActiveInfo('posture')} />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
+                      <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
+                        style={{ background: postureStatus.bg, border: `1px solid ${postureStatus.color}33`, boxShadow: `0 4px 20px ${postureStatus.color}20` }}>
+                        <span className="text-4xl font-bold" style={{ color: postureStatus.color }}>{postureGrade}</span>
+                      </div>
+                    </motion.div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold"
+                          style={{ background: postureStatus.bg, color: postureStatus.color, border: `1px solid ${postureStatus.color}30` }}>
+                          {postureStatus.label}
+                        </span>
+                      </div>
+                      <p className="text-white/50 text-xs">頭部の前方傾斜</p>
                     </div>
-                  </motion.div>
-                  <div className="flex-1">
-                    <p className="text-white/80 font-semibold text-sm mb-1">前方頭位角度</p>
-                    <motion.p className="text-2xl font-bold gradient-text"
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                      {animateValues && <AnimatedCounter from={0} to={postureAngle} duration={2} />}{'\u00B0'}
-                    </motion.p>
+                  </div>
+                  <div className="pt-4 border-t border-white/10">
+                    <p className="text-white/80 text-sm leading-relaxed">
+                      {postureStatus.desc}
+                    </p>
                   </div>
                 </div>
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-white font-semibold mb-2">
-                    {postureAngle <= 10 ? '姿勢は良好です' : postureAngle <= 20 ? '軽度の前傾姿勢が見られます' : '中等度のスマホ首が検出されました'}
-                  </p>
-                  <p className="text-white/60 text-sm leading-relaxed">
-                    あなたの頭部が標準位置より{postureAngle}{'\u00B0'}前方に傾いています。
-                    {postureAngle > 15 ? 'これはスマートフォンやデスク作業の習慣が原因と考えられます。' : '日常的な姿勢意識で維持・改善が可能です。'}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )
+          })()}
 
           {/* Causality Explanation */}
           {visibleSections.causality && (
@@ -618,7 +626,7 @@ export default function DiagnosisResult() {
                 {[
                   { num: '\u2460', text: <><span className="font-semibold text-white">姿勢のズレ</span>（{postureAngle}{'\u00B0'}）が原因で、頭部が前方に傾きます</> },
                   { num: '\u2461', text: <>この姿勢により<span className="font-semibold text-white">顎周辺の筋肉</span>に緊張が生じます</> },
-                  { num: '\u2462', text: <>その結果、<span className="font-semibold text-white">頤頸角が拡大</span>し、たるみが増加します</> },
+                  { num: '\u2462', text: <>その結果、<span className="font-semibold text-white">ネックライン角度が拡大</span>し、たるみが増加します</> },
                 ].map((item, i) => (
                   <React.Fragment key={i}>
                     {i > 0 && (
@@ -646,46 +654,70 @@ export default function DiagnosisResult() {
             </motion.div>
           )}
 
-          {/* Share Button */}
-          {visibleSections.cta && (
-            <motion.div variants={containerVariants} initial="hidden" animate="visible">
-              <button
-                onClick={handleShare}
-                disabled={isSharing}
-                className="w-full py-4 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center gap-3 text-white/80 font-semibold hover:bg-white/10 active:scale-[0.98] transition disabled:opacity-50"
-              >
-                <Share2 className="w-5 h-5" />
-                {isSharing ? 'カード生成中...' : '結果をシェアする'}
-              </button>
-            </motion.div>
-          )}
-
           {/* CTA */}
-          {visibleSections.cta && (
-            <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-4">
-              <div className="glass-card p-6 text-center">
-                <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block mb-4">
-                  <Target className="w-10 h-10 text-green-400" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-white mb-2">4週間プログラムで改善を始める</h3>
-                <p className="text-white/60 text-sm leading-relaxed">
-                  AI診断結果に基づいた、<br />あなたにカスタマイズされたトレーニングプランです
-                </p>
-              </div>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={handleCtaClick} className="btn-primary">
-                無料で始める
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={handleCtaClick} className="btn-secondary">
-                7日間無料トライアル（年間プラン）
-              </motion.button>
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-                className="text-white/50 text-xs text-center pt-2">
-                クレジットカード不要。いつでもキャンセルできます。
-              </motion.p>
-            </motion.div>
-          )}
+          {visibleSections.cta && (() => {
+            // Calculate achievable target (gentle, not extreme)
+            const targetCma = cmaAngle > 120 ? Math.max(115, cmaAngle - Math.round((cmaAngle - 115) * 0.4)) : cmaAngle
+            const targetJdi = jdi < 75 ? Math.min(80, jdi + Math.round((80 - jdi) * 0.4)) : jdi
+
+            return (
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-4">
+                {/* Main CTA card */}
+                <div className="glass-card p-6">
+                  <h3 className="text-xl font-bold text-white text-center mb-2">
+                    4週間でフェイスラインを引き締める
+                  </h3>
+
+                  {/* Current vs Target */}
+                  {(cmaAngle > 120 || jdi < 75) && (
+                    <div className="mt-4 mb-5 grid grid-cols-2 gap-3">
+                      <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
+                        <p className="text-white/40 text-xs mb-1">現在</p>
+                        <p className="text-white font-bold text-lg">{cmaAngle}{'\u00B0'}</p>
+                        <p className="text-white/30 text-[10px]">ネックライン角度</p>
+                      </div>
+                      <div className="text-center p-3 rounded-xl border"
+                        style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.2)' }}>
+                        <p className="text-green-400/60 text-xs mb-1">4週間後の目標</p>
+                        <p className="text-green-400 font-bold text-lg">{targetCma}{'\u00B0'}</p>
+                        <p className="text-green-400/40 text-[10px]">無理のない目標値</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mechanism explanation */}
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-4">
+                    <p className="text-white/80 text-sm leading-relaxed text-center">
+                      姿勢を整えることで<br />
+                      顎まわりの筋肉が引き締まり<br />
+                      <span className="text-green-400 font-semibold">フェイスラインがスッキリ</span>していきます
+                    </p>
+                  </div>
+
+                  {/* PT supervised badge */}
+                  <div className="flex items-center justify-center gap-2 mb-4 py-2.5 rounded-xl bg-blue-500/8 border border-blue-400/15">
+                    <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span className="text-blue-400/80 text-xs font-medium">理学療法士監修プログラム</span>
+                  </div>
+                </div>
+
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  onClick={handleCtaClick} className="btn-primary">
+                  無料で始める
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  onClick={handleCtaClick} className="btn-secondary">
+                  7日間無料トライアル（年間プラン）
+                </motion.button>
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                  className="text-white/50 text-xs text-center pt-2">
+                  クレジットカード不要。いつでもキャンセルできます。
+                </motion.p>
+              </motion.div>
+            )
+          })()}
         </div>
       </div>
     </div>

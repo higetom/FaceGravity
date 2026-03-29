@@ -5,6 +5,7 @@ import { ChevronLeft, CheckCircle2, Zap, BedDouble, Volume2, VolumeX, Flame, Tre
 import { useApp } from '../context/AppContext'
 import { getTodayProgram, trainingCategories } from '../data/trainingData'
 import { getTodayLesson } from '../data/lessonData'
+import ExerciseIllustration from '../components/ExerciseIllustration'
 
 export default function Training() {
   const navigate = useNavigate()
@@ -172,7 +173,7 @@ export default function Training() {
     // Predicted improvement based on category
     const predictions = {
       elevation: { metric: 'フェイスライン', change: '+0.5〜1.0pt/週', icon: TrendingUp },
-      release: { metric: '頤頸角', change: '-0.5〜1.0°/週', icon: TrendingUp },
+      release: { metric: 'ネックライン角度', change: '-0.5〜1.0°/週', icon: TrendingUp },
       posture: { metric: '姿勢角度', change: '-1.0〜2.0°/週', icon: TrendingUp },
     }
     const prediction = predictions[category?.id] || predictions.elevation
@@ -344,6 +345,11 @@ export default function Training() {
             exit={{ opacity: 0, y: -10 }}
             className="flex-1 flex flex-col"
           >
+            {/* Exercise illustration */}
+            <div className="mb-4">
+              <ExerciseIllustration exercise={currentExercise} size="md" />
+            </div>
+
             {/* Exercise name and target */}
             <div className="mb-8">
               <div
